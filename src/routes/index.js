@@ -64,6 +64,19 @@ routes.post('/api/notes', (request, response) => {
   return response.json(note)
 })
 
+routes.put('/api/notes/:id', (request, response) => {
+  const { id } = request.params
+  const { number } = request.body
+
+  const noteIndex = notes.findIndex(note => note.id === Number(id))
+
+  if(noteIndex < 0) return response.status(404).json({ error: 'note not found' })
+
+  notes[noteIndex].number = number
+
+  return response.json(notes[noteIndex])
+})
+
 routes.delete('/api/notes/:id', (request, response) => {
   const { id } = request.params
 
