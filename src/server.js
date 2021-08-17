@@ -1,10 +1,12 @@
-import express, { request, response } from 'express'
-import morgan, { token } from 'morgan'
+import express from 'express'
+import morgan from 'morgan'
+import cors from 'cors'
 
 import { routes } from './routes/index.js'
 
 const app = express()
 
+app.use(cors())
 app.use(express.json())
 
 morgan.token('body', (request, response) => {
@@ -24,4 +26,5 @@ app.use(morgan((tokens, request, response) => {
 
 app.use(routes)
 
-app.listen(3001, () => console.log('Server up at port 3001'))
+const PORT = process.env.PORT || 3001
+app.listen(PORT, () => console.log(`Server up at port ${PORT}`))
