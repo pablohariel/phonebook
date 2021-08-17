@@ -7,6 +7,7 @@ import { routes } from './routes/index.js'
 const app = express()
 
 app.use(cors())
+app.use(express.static('build'))
 app.use(express.json())
 
 morgan.token('body', (request, response) => {
