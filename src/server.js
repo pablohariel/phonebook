@@ -27,6 +27,18 @@ app.use(morgan((tokens, request, response) => {
 
 app.use(routes)
 
+app.use((request, response) => {
+  return response.status(404).json({ error: 'unknown endpoint' })
+})
+
+app.use((error, request, response, next) => {
+  console.log(error.message)
+  if(error.name === 'CastError') {
+    return response.status(400).json({ error: 'invalid id' })
+  }
+  next(error)
+})
+
 const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
   console.log(`Server up at port ${PORT}`)
