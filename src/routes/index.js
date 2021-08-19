@@ -1,92 +1,93 @@
 import { Router } from 'express'
+import { Contact } from '../models/contact.js'
 
 const routes = Router()
 
-let notes = [
-  { 
-    "id": 1,
-    "name": "Arto Hellas", 
-    "number": "040-123456"
-  },
-  { 
-    "id": 2,
-    "name": "Ada Lovelace", 
-    "number": "39-44-5323523"
-  },
-  { 
-    "id": 3,
-    "name": "Dan Abramov", 
-    "number": "12-43-234345"
-  },
-  { 
-    "id": 4,
-    "name": "Mary Poppendieck", 
-    "number": "39-23-6423122"
-  }
-]
-
 routes.get('/info', (request, response) => {
-  return response.send(`<p>Phonebook has info for ${notes.length} people</p><p>${Date(Date.now())}</p>`)
+  Contact.find()
+    .then(result => {
+      const notes = result ? result : []
+      return response.send(`<p>Phonebook has info for ${notes.length} people</p><p>${Date(Date.now())}</p>`)
+    })
+    .catch(err => {
+      console.log('error: ', err.message)
+      return response.status(500).json({ message: 'internal server error' })
+    })
 })
 
-routes.get('/api/notes/', (request, response) => {
-  return response.json(notes)
+routes.get('/api/contacts/', (request, response) => {
+  Contact.find()
+    .then(result => {
+      return response.json(result)
+    })
+    .catch(err => {
+      console.log('error: ', err.message)
+      return response.status(500).json({ message: 'internal server error' })
+    })
 })
 
-routes.get('/api/notes/:id', (request, response) => {
+routes.get('/api/contacts/:id', (request, response) => {
   const { id } = request.params
-  const note = notes.find(note => note.id === Number(id))
 
-  if(!note) return response.status(404).json({ error: 'note not found' })
-
-  return response.json(note)
+  Contact.findById(id)
+    .then(result => {
+      if(result) return response.json(result)
+      else response.status(404).json({ message: 'contact not found' })
+    })
+    .catch(err => {
+      console.log('error: ', err.message)
+      return response.status(404).json({ message: 'contact not found' })
+    })
 })
 
-routes.post('/api/notes', (request, response) => {
+routes.post('/api/contacts', (request, response) => {
   const { name, number } = request.body
 
   if(!name || !number) {
     return response.status(400).json({ error: 'invalid field' })
   }
 
-  const nameAlreadyUsed = notes.find(note => note.name === name)
+  Contact.find()
+    .then(result => {
+      const nameAlreadyUsed = result.find(contact => contact.name === name)
+      if(nameAlreadyUsed) return response.status(400).json({ error: 'name must be unique' })
 
-  if(nameAlreadyUsed) return response.status(400).json({ error: 'name must be unique' })
-
-  const note = {
-    id: notes[notes.length - 1].id + 1,
-    name,
-    number
-  }
-
-  notes.push(note)
-
-  return response.json(note)
+      Contact.create({ name, number }).then(contact => {
+        return response.json(contact)
+      })
+    })
+    .catch(err => {
+      console.log('error: ', err.message)
+      return response.status(500).json({ message: 'internal server error' })
+    })
 })
 
-routes.put('/api/notes/:id', (request, response) => {
+routes.put('/api/contacts/:id', (request, response) => {
   const { id } = request.params
   const { number } = request.body
 
-  const noteIndex = notes.findIndex(note => note.id === Number(id))
-
-  if(noteIndex < 0) return response.status(404).json({ error: 'note not found' })
-
-  notes[noteIndex].number = number
-
-  return response.json(notes[noteIndex])
+  Contact.findByIdAndUpdate(id, { number }, { new: true })
+    .then(result => {
+      if(result) return response.json(result)
+      else response.status(404).json({ message: 'contact not found' })
+    })
+    .catch(err => {
+      console.log('error: ', err.message)
+      return response.status(404).json({ message: 'contact not found' })
+    })
 })
 
-routes.delete('/api/notes/:id', (request, response) => {
+routes.delete('/api/contacts/:id', (request, response) => {
   const { id } = request.params
 
-  const note = notes.find(note => note.id === Number(id))
-
-  if(!note) return response.status(404).json({ error: 'note not found' })
-
-  notes = notes.filter(note => note.id !== Number(id))
-
-  return response.json(note)
+  Contact.findByIdAndDelete(id)
+    .then(result => {
+      return response.json(result)
+    })
+    .catch(err => {
+      console.log('error: ', err.message)
+      return response.status(404).json({ message: 'contact not found' })
+    })
 })
 
 export { routes }
