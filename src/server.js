@@ -33,9 +33,17 @@ app.use((request, response) => {
 
 app.use((error, request, response, next) => {
   console.log(error.message)
-  if(error.name === 'CastError') {
-    return response.status(400).json({ error: 'invalid id' })
+  console.log(error.name)
+
+  switch(error.name) {
+    case 'CastError':
+      return response.status(400).json({ error: 'invalid id' })
+    case 'ValidationError':
+      return response.status(400).json({ error: error.message })
+    default:
+      break
   }
+
   next(error)
 })
 

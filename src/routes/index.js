@@ -34,15 +34,8 @@ routes.get('/api/contacts/:id', (request, response, next) => {
 routes.post('/api/contacts', (request, response, next) => {
   const { name, number } = request.body
 
-  if(!name || !number) {
-    return response.status(400).json({ error: 'unfilled field' })
-  }
-
   Contact.find()
     .then(result => {
-      const nameAlreadyUsed = result.find(contact => contact.name === name)
-      if(nameAlreadyUsed) return response.status(400).json({ error: 'name must be unique' })
-
       Contact.create({ name, number }).then(contact => {
         return response.json(contact)
       })
@@ -55,10 +48,9 @@ routes.put('/api/contacts/:id', (request, response, next) => {
   const { id } = request.params
   const { number } = request.body
 
-  Contact.findByIdAndUpdate(id, { number }, { new: true })
+  Contact.findByIdAndUpdate(id, { number }, { new: true, runValidators: true })
     .then(result => {
-      if(result) return response.json(result)
-      else response.status(404).json({ error: 'contact not found' })
+      return response.json(result)
     })
     .catch(error => next(error))
 })
