@@ -8,7 +8,7 @@ const app = express()
 
 app.use(cors())
 app.use(express.static('build'))
-app.use(express.json()) 
+app.use(express.json())
 
 morgan.token('body', (request, response) => {
   return request.method === 'POST' ? JSON.stringify(request.body) : ''
@@ -35,7 +35,7 @@ app.use((error, request, response, next) => {
   console.log(error.message)
   console.log(error.name)
 
-  switch(error.name) {
+  switch (error.name) {
     case 'CastError':
       return response.status(400).json({ error: 'invalid id' })
     case 'ValidationError':
@@ -51,4 +51,3 @@ const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
   console.log(`Server up at port ${PORT}`)
 })
-

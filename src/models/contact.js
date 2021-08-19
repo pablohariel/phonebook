@@ -23,14 +23,11 @@ const contactSchema = new mongoose.Schema({
     type: String,
     required: true,
     minLength: 8
-  },
-})  
+  }
+})
 
 contactSchema.plugin(uniqueValidator)
 
 const Contact = mongoose.model('Contact', contactSchema)
 
 export { Contact }
-
-
-

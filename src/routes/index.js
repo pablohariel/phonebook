@@ -6,7 +6,7 @@ const routes = Router()
 routes.get('/info', (request, response, next) => {
   Contact.find()
     .then(result => {
-      const notes = result ? result : []
+      const notes = result || []
       return response.send(`<p>Phonebook has info for ${notes.length} people</p><p>${Date(Date.now())}</p>`)
     })
     .catch(error => next(error))
@@ -25,7 +25,7 @@ routes.get('/api/contacts/:id', (request, response, next) => {
 
   Contact.findById(id)
     .then(result => {
-      if(result) return response.json(result)
+      if (result) return response.json(result)
       else response.status(404).json({ error: 'contact not found' })
     })
     .catch(error => next(error))
@@ -39,7 +39,7 @@ routes.post('/api/contacts', (request, response, next) => {
       Contact.create({ name, number }).then(contact => {
         return response.json(contact)
       })
-      .catch(error => next(error))
+        .catch(error => next(error))
     })
     .catch(error => next(error))
 })
